@@ -1,7 +1,8 @@
 import requests, json
 import random, string, time, calendar
-import dateutil.relativedelta
+from dateutil.relativedelta import relativedelta
 from datetime import datetime
+from datetime import date
 
 class AppointmentCreator:
     def __init__(self, api_url):
@@ -15,16 +16,62 @@ class AppointmentCreator:
         
         return companies
     
+    def get_users(self):
+        return requests.get(f"{self.api_url}/user").json()
+    def get_users_with_role(self, rolename):
+        roles = requests.get(f"{self.api_url}/role?rolename={rolename}").json()
+        
+        if len(roles) == 0:
+            return None
+
+        role = roles[0]
+
+        return requests.get(f"{self.api_url}/user?roleid={role['id']}").json()
+    
     def create_agreement(self, agreement):
-        return requests.post(f"{self.api_url}/agreement").json()
+        agreement = requests.post(f"{self.api_url}/agreement", json=agreement)
+        agreement = agreement.json()
+        print(f"Created agreement {agreement['name']} with id {agreement['id']}")
+        return agreement
+
+    def create_workperiod(self, workperiod):
+        workperiod = requests.post(f"{self.api_url}/workperiod", json=workperiod).json()
+        print(f"Created workperiod {workperiod['name']} with id {workperiod['id']}")
+        return workperiod
+
+    def create_appointment(self, appointment):
+        appointment = requests.post(f"{self.api_url}/appointment", json=appointment).json()
+        print(f"Created appointment from {appointment['start']} to {appointment['stop']} with id {appointment['id']}")
+        return appointment
+    
+    def add_user_to_workperiod(self, username, workperiod_id):
+        resp = requests.post(f"{self.api_url}/user/{username}/workperiod/{workperiod_id}").json()
+        print(f"Added user {username} to work period \"{resp['name']}\" (id: {workperiod_id})")
+        return resp
+    
+    def random_appointment(self, user_id, workperiod_id):
+        d1 = self.random_date_past()
+        d2 = self.random_date_future()
+        work_date = random.choice([d1, d2])
+
+        work_from = datetime(work_date.year, work_date.month, work_date.day, 8, 0, 0)
+        work_to = datetime(work_date.year, work_date.month, work_date.day, 17, 0, 0)
+
+        time_break = random.randint(30, 61)
+        
+        return { "start": work_from.isoformat(), "stop": work_to.isoformat(), "break": time_break, "ownerId": user_id, "workperiodId": workperiod_id }
     
     def random_work_period(self, department_id, agreement_id):
         names = ["Storage", "Cassier", "Fork Lift", "Programmer", "Consultant", "Teaching Assistant", "Floor Manager", "Driver"]
 
+        start_date = self.random_date_past_long()
+        name = f"{random.choice(names)} - {calendar.month_name[start_date.month]}"
+        
+        return { "name": name, "departmentId": department_id, "agreementId": agreement_id, "start": datetime(start_date.year, start_date.month, start_date.day, 8, 0 ,0).isoformat()}
 
     def random_agreement(self, agreement_name):
         name = f"{''.join(random.choice(string.ascii_uppercase) for x in range(3))} {agreement_name} FWP-{random.randint(10,100)}"
-        version = f"{datetime.now().year}-{random.randint(1,13)}"
+        version = f"{date.today().year}-{random.randint(1,date.today().month + 1)}"
         salary = random.randint(110, 251)
         unitprice = random.randint(100,201) + salary
         nightsubsidy = random.randint(20, 100)
@@ -32,61 +79,69 @@ class AppointmentCreator:
         holidaysubsidy = random.randint(20, 100)
         
         return { "name" : name, "version" : version, "salary" : salary, "unitprice" : unitprice, "nightsubsidy" : nightsubsidy, "weekendsubsidy" : weekendsubsidy, "holidaysubsidy": holidaysubsidy }
-    
-    def random_date_previous(self, to_date, from_date):
-        year = random.randint(to_date.year, from_date.year)
-        month = random.randint(from_date.month, to_date.month)
-        monthrange = calendar.monthrange(year, month)
-        day = random.randint(monthrange[0], monthrange[1])
 
-        return datetime(year, month, day)
-    
-    def random_date_future(self, to_date, from_date):
-        year = random.randint(to_date.year, from_date.year)
-        month = random.randint(from_date.month, to_date.month)
-        monthrange = calendar.monthrange(year, month)
-        day = random.randint(monthrange[0], monthrange[1])
+    def random_date_past_long(self):
+        start = (date.today() + relativedelta(months=-24)).toordinal()
+        end = date.today().toordinal()
 
-        return datetime(year, month, day)
-    
-    def random_previous_date(self):
-        today = datetime.now()
-        # Three months back at most
-        previous = today + dateutil.relativedelta.relativedelta(months=-3)
+        return date.fromordinal(random.randint(start, end))
 
-        year = random.randint(previous.year, today.year)
-        month = random.randint(previous.month, today.month)
-        monthrange = calendar.monthrange(year, month)
-        day = random.randint(monthrange[0], monthrange[1])
+    def random_date_past(self):
+        start = (date.today() + relativedelta(months=-1)).toordinal()
+        end = date.today().toordinal()
 
-        return datetime(year, month, day)
-    
-    def random_future_date(self):
-        today = datetime.now()
-        # Three months ahead at most
-        future = today + dateutil.relativedelta.relativedelta(months=+3)
+        return date.fromordinal(random.randint(start, end))
 
-        year = random.randint(today.year, future.year)
-        month = random.randint(today.month, future.month)
-        monthrange = calendar.monthrange(year, month)
-        day = random.randint(monthrange[0], monthrange[1])
+    def random_date_future(self):
+        start = date.today().toordinal()
+        end = (date.today() + relativedelta(months=+1)).toordinal()
 
-        return datetime(year, month, day)
+        return date.fromordinal(random.randint(start, end))
 
 def create_appointments(url = "http://localhost:5000/api"):
     ac = AppointmentCreator(url)
-    # ac.get_companies()
-    ag01 = ac.random_agreement("Agreement_01")
-    ag02 = ac.random_agreement("Agreement_02")
 
-    for company in ac.get_companies():
-        print(company['name'])
+    ag01 = ac.create_agreement(ac.random_agreement("Agreement_01"))
+    ag02 = ac.create_agreement(ac.random_agreement("Agreement_02"))
+
+    companies = ac.get_companies()
+    workperiods = []
+
+    print("\n=== Creating Companies ===\n")
+
+    for company in companies:
         for department in company['departments']:
+            # Choose an agreement for the department
             agreement = random.choice([ag01, ag02])
-            print("-", department['name'], "--", agreement['name'])
-    print("\nprevious", ac.random_previous_date())
-    print("future", ac.random_future_date())
-    print("=====\n","today",datetime.now())
+            # Create a work period
+            workperiod = ac.create_workperiod(ac.random_work_period(department['id'], agreement['id']))
+            # Add the new workperiod to a list
+            workperiods.append(workperiod)
+
+    print("\n=== Creating Appointments ===\n")
+
+    # import pprint
+    # pp=pprint.PrettyPrinter(indent=4)
+    users = ac.get_users_with_role("substitute")
+    # workperiods = requests.get(f"{url}/workperiod").json()
+
+    for user in users:
+        print(f"User: {user['userName']}")
+        # Get two random work periods
+        wps = random.sample(workperiods, 2)
+
+        # Add user to each of the work periods
+        for wp in wps:
+            # Add a user to one or more work periods
+            wp = ac.add_user_to_workperiod(user['userName'], wp['id'])
+
+            appointment_threads = []
+
+            # Add between 5 and 15 appointments for the user
+            for _ in range(0, random.randint(5, 16)):
+                ac.create_appointment(ac.random_appointment(user['id'], wp['id']))
+        print()
 
 if __name__ == "__main__":
     create_appointments()
+    # test()

@@ -23,7 +23,6 @@ class CompanyCreator:
             print(req.text)
             return None
         
-        print(req.text)
         company = req.json()
         print(f"Created company {company['name']} with id {company['id']}.")
 
@@ -99,7 +98,7 @@ class CompanyCreator:
         # for pu in prod_units:
         #     pu.join()
 
-        print(f"Sucessfully created company {company['name']} ({vat}) with all production units.")
+        print(f"Sucessfully created company {company['name']} ({vat}) with all production units.\n")
     
 def create_demo_companies(url = "http://localhost:5000/api"):
     creator = CompanyCreator(url)
