@@ -107,7 +107,7 @@ def create_appointments(url = "http://localhost:5000/api"):
     companies = ac.get_companies()
     workperiods = []
 
-    print("\n=== Creating Companies ===\n")
+    print("\n=== Creating Workperiods ===\n")
 
     for company in companies:
         for department in company['departments']:
