@@ -89,10 +89,17 @@ class UserRoleCreator():
         
         return self.get_role(role['id'])
     
-    def generate_random_user(self, username):
+    def generate_random_user(self, username, password = None):
         url = f"https://randomuser.me/api/?inc=name,email,login,phone&nat=dk&results=1"
 
-        reqUser = requests.get(url).json()["results"][0]
+        req = requests.get(url)
+        try:
+            reqUser = req.json()["results"][0]
+        except:
+            print("\n========== FAILURE =========")
+            print("Failed something for user:", username)
+            print(req.text)
+            print("========== FAILURE =========\n")
 
         user = {
             "firstName": reqUser["name"]["first"],
@@ -103,10 +110,13 @@ class UserRoleCreator():
             "password": reqUser["login"]["password"]
         }
 
+        if password is not None:
+            user['password'] = password
+
         return user
     
-    def create_random_user_with_roles(self, username, roles):
-        random_user = self.generate_random_user(username)
+    def create_random_user_with_roles(self, username, roles, password = None):
+        random_user = self.generate_random_user(username, password)
         actual_user = self.create_user(random_user)
 
         for role in roles:

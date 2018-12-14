@@ -128,7 +128,7 @@ def create_appointments(url = "http://localhost:5000/api"):
     for user in users:
         print(f"User: {user['userName']}")
         # Get two random work periods
-        wps = random.sample(workperiods, 2)
+        wps = random.sample(workperiods, random.randint(0,6))
 
         # Add user to each of the work periods
         for wp in wps:
@@ -138,7 +138,7 @@ def create_appointments(url = "http://localhost:5000/api"):
             appointment_threads = []
 
             # Add between 5 and 15 appointments for the user
-            for _ in range(0, random.randint(5, 16)):
+            for _ in range(random.randint(0, 10)):
                 ac.create_appointment(ac.random_appointment(user['id'], wp['id']))
         print()
 

@@ -105,6 +105,7 @@ def create_demo_companies(url = "http://localhost:5000/api"):
     creator.create_company_with_departments(35783482)
     creator.create_company_with_departments(19766241)
     creator.create_company_with_departments(32939635)
+    creator.create_company_with_departments(30060946)
 
 if __name__ == "__main__":
     create_demo_companies()
