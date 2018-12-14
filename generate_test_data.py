@@ -13,7 +13,7 @@ if (len(sys.argv) > 1):
     if (sys.argv[1] == "staging"):
         api_url = "https://staging.effortless.dk/api"
     elif (sys.argv[1] == "prod" or sys.argv[1] == "production"):
-        api_url == "https://api.effortless.dk/api"
+        api_url = "https://api.effortless.dk/api"
     elif (sys.argv[1] == "local"):
         api_url = "http://localhost:5000/api"
     elif (sys.argv[1] == "local.ssl"):
