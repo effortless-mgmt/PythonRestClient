@@ -3,20 +3,24 @@ from threading import Thread
 from multiprocessing.pool import ThreadPool
 
 class CompanyCreator:
-    def __init__(self, api_url):
+    def __init__(self, api_url, token = None):
         self.api_url = api_url
+        self.set_token(token)
+    
+    def set_token(self, token):
+        self.headers = {'Authorization': f'Bearer {token}'}
     
     def get_companies():
-        return requests.get(f"{api_url}/company").json()
+        return requests.get(f"{api_url}/company", headers=self.headers).json()
     def get_departments():
-        return requests.get(f"{api_url}/department").json()
+        return requests.get(f"{api_url}/department", headers=self.headers).json()
     def get_agreements():
-        return requests.get(f"{api_url}/agreement").json()
+        return requests.get(f"{api_url}/agreement", headers=self.headers).json()
     def get_appointments():
-        return requests.get(f"{api_url}/appointment").json()
+        return requests.get(f"{api_url}/appointment", headers=self.headers).json()
 
     def create_company(self, company):
-        req = requests.post(f"{self.api_url}/company", json=company)
+        req = requests.post(f"{self.api_url}/company", json=company, headers=self.headers)
 
         if (req.status_code < 200 and req.status_code > 201):
             print("Dunno what happened")
@@ -29,7 +33,7 @@ class CompanyCreator:
         return company
     
     def create_department(self, department):
-        req = requests.post(f"{self.api_url}/department", json=department)
+        req = requests.post(f"{self.api_url}/department", json=department, headers=self.headers)
 
         if (req.status_code < 200 and req.status_code > 201):
             print("Dunno what happened")
@@ -100,13 +104,14 @@ class CompanyCreator:
 
         print(f"Sucessfully created company {company['name']} ({vat}) with all production units.\n")
     
-def create_demo_companies(url = "http://localhost:5000/api"):
-    creator = CompanyCreator(url)
+def create_demo_companies(token, url = "http://localhost:5000/api"):
+    creator = CompanyCreator(url, token)
     creator.create_company_with_departments(35783482)
     creator.create_company_with_departments(19766241)
     creator.create_company_with_departments(32939635)
     creator.create_company_with_departments(30060946)
 
 if __name__ == "__main__":
-    create_demo_companies()
+    # create_demo_companies()
+    print("Not Implemented: Perform a login or use a token.")
     

@@ -2,6 +2,7 @@ import sys
 from user_role_creation import UserRoleCreator
 from company_creator import create_demo_companies
 from appointment_creator import create_appointments
+from primary_roletype import PrimaryRoleType
 
 def is_db_empty(user_role_creator):
     users = user_role_creator.get_users()
@@ -21,15 +22,19 @@ if (len(sys.argv) > 1):
     else:
         api_url = "http://localhost:5000/api"
 urc = UserRoleCreator(api_url)
-
 # Make sure the database is empty
-if (not is_db_empty(urc)):
-    print("Data has already been generated. Please reset the database before running this script.")
-    sys.exit(-1)
+# if (not is_db_empty(urc)):
+#     print("Data has already been generated. Please reset the database before running this script.")
+#     sys.exit(-1)
 print(f"Adding data to server: {api_url}")
     
-from threading import Thread
 print("\n========== Creating Roles with Privileges ==========\n")
+random_mainuser = urc.generate_random_user("jd", "SecurePassword")
+main_user = urc.create_user(random_mainuser)
+auth = urc.login("jd", "SecurePassword")
+token = auth["token"]
+urc.set_token(token)
+from threading import Thread
 
 admin = urc.create_role_with_privileges("admin", ["create_user", "delete_user", "modify_user"])
 substitute = urc.create_role_with_privileges("substitute", ["manage_hours", "something_else"])
@@ -44,6 +49,11 @@ urc.create_random_user_with_roles("TestUser_Client", [client])
 urc.create_random_user_with_roles("TestUser_Booker", [booker])
 urc.create_random_user_with_roles("TestUser_ClientBooker", [client, booker])
 urc.create_random_user_with_roles("TestUser_All", [admin, substitute, client, booker])
+
+password = "SecurePassword"
+urc.create_random_user_with_roles("booker", [booker], password, PrimaryRoleType.BOOKER)
+urc.create_random_user_with_roles("client", [client], password, PrimaryRoleType.CLIENT)
+urc.create_random_user_with_roles("substitute", [substitute], password, PrimaryRoleType.SUBSTITUTE)
 
 urc.create_random_user_with_roles("TestUser_Substitute01", [substitute])
 urc.create_random_user_with_roles("TestUser_Substitute02", [substitute])
@@ -82,8 +92,8 @@ urc.create_random_user_with_roles("TestUser_Substitute10", [substitute])
 
 print("\n========== Creating Companies ==========\n")
 
-create_demo_companies(api_url)
+create_demo_companies(token, api_url)
 
 print("\n========== Creating Agreements ==========\n")
 
-create_appointments(api_url)
+create_appointments(token, api_url)

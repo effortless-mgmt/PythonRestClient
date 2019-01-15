@@ -5,47 +5,51 @@ from datetime import datetime
 from datetime import date
 
 class AppointmentCreator:
-    def __init__(self, api_url):
+    def __init__(self, api_url, token = None):
         self.api_url = api_url
+        self.set_token(token)
+    
+    def set_token(self, token):
+        self.headers = {'Authorization': f'Bearer {token}'}
     
     def get_companies(self):
-        companies = requests.get(f"{self.api_url}/company").json()
+        companies = requests.get(f"{self.api_url}/company", headers=self.headers).json()
 
         for company in companies:
-            company["departments"] = requests.get(f"{self.api_url}/company/{company['id']}/departments").json()
+            company["departments"] = requests.get(f"{self.api_url}/company/{company['id']}/departments", headers=self.headers).json()
         
         return companies
     
     def get_users(self):
-        return requests.get(f"{self.api_url}/user").json()
+        return requests.get(f"{self.api_url}/user", headers=self.headers).json()
     def get_users_with_role(self, rolename):
-        roles = requests.get(f"{self.api_url}/role?rolename={rolename}").json()
+        roles = requests.get(f"{self.api_url}/role?rolename={rolename}", headers=self.headers).json()
         
         if len(roles) == 0:
             return None
 
         role = roles[0]
 
-        return requests.get(f"{self.api_url}/user?roleid={role['id']}").json()
+        return requests.get(f"{self.api_url}/user?roleid={role['id']}", headers=self.headers).json()
     
     def create_agreement(self, agreement):
-        agreement = requests.post(f"{self.api_url}/agreement", json=agreement)
+        agreement = requests.post(f"{self.api_url}/agreement", json=agreement, headers=self.headers)
         agreement = agreement.json()
         print(f"Created agreement {agreement['name']} with id {agreement['id']}")
         return agreement
 
     def create_workperiod(self, workperiod):
-        workperiod = requests.post(f"{self.api_url}/workperiod", json=workperiod).json()
+        workperiod = requests.post(f"{self.api_url}/workperiod", json=workperiod, headers=self.headers).json()
         print(f"Created workperiod {workperiod['name']} with id {workperiod['id']}")
         return workperiod
 
     def create_appointment(self, appointment):
-        appointment = requests.post(f"{self.api_url}/appointment", json=appointment).json()
+        appointment = requests.post(f"{self.api_url}/appointment", json=appointment, headers=self.headers).json()
         print(f"Created appointment from {appointment['start']} to {appointment['stop']} with id {appointment['id']}")
         return appointment
     
     def add_user_to_workperiod(self, username, workperiod_id):
-        resp = requests.post(f"{self.api_url}/user/{username}/workperiod/{workperiod_id}").json()
+        resp = requests.post(f"{self.api_url}/user/{username}/workperiod/{workperiod_id}", headers=self.headers).json()
         print(f"Added user {username} to work period \"{resp['name']}\" (id: {workperiod_id})")
         return resp
     
@@ -98,8 +102,8 @@ class AppointmentCreator:
 
         return date.fromordinal(random.randint(start, end))
 
-def create_appointments(url = "http://localhost:5000/api"):
-    ac = AppointmentCreator(url)
+def create_appointments(token, url = "http://localhost:5000/api"):
+    ac = AppointmentCreator(url, token)
 
     ag01 = ac.create_agreement(ac.random_agreement("Agreement_01"))
     ag02 = ac.create_agreement(ac.random_agreement("Agreement_02"))
@@ -143,5 +147,6 @@ def create_appointments(url = "http://localhost:5000/api"):
         print()
 
 if __name__ == "__main__":
-    create_appointments()
+    # create_appointments()
+    print("Not Implemented: Perform a login or use a token.")
     # test()

@@ -1,4 +1,5 @@
 import sys
+import random
 import requests, json
 from delete_test_users import api_url
 
@@ -16,6 +17,7 @@ def random_users(count):
             "phone": reqUser["phone"],
             "userName": reqUser["login"]["username"],
             "password": reqUser["login"]["password"]
+            "primaryRoleType": random.randint(0, 2)
         })
     return users
 
