@@ -31,7 +31,6 @@ class UserRoleCreator():
             print(req.text)
             return None
         
-        print(req.text)
         user = req.json()
         print(f"Created user {user['userName']} with id {user['id']}.")
 
