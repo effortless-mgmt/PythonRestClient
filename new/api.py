@@ -4,15 +4,16 @@ from token_helper import TokenHelper
 from data_generator import DataGenerator
 
 class EffortlessApi:
-    def __init__(self, base_url):
+    def __init__(self, base_url, verify_ssl=True):
         self.base = base_url
         self.session = Session()
         self.token = None
+        self.verify_ssl = verify_ssl
     
     def login(self, username, password):
         user = {"username": username, "password": password}
         
-        resp = self.session.post(f"{self.base}/auth/login", json=user)
+        resp = self.session.post(f"{self.base}/auth/login", json=user, verify=self.verify_ssl)
         
         if resp.status_code == 500:
             return None
@@ -35,7 +36,7 @@ class EffortlessApi:
     def create_user(self, user):
         url = f"{self.base}/user"
 
-        resp = self.session.post(url, json=user)
+        resp = self.session.post(url, json=user, verify=self.verify_ssl)
 
         if resp.status_code == 500:
             return None
@@ -49,7 +50,7 @@ class EffortlessApi:
         url = f"{self.base}/{resource}"
 
         authheader={"Authorization": f"Bearer {self.token}"}
-        resp = self.session.get(url, headers=authheader)
+        resp = self.session.get(url, headers=authheader, verify=self.verify_ssl)
 
         if resp.status_code < 200 or resp.status_code > 201:
             print(f"Failed GET to {url}.")
@@ -64,9 +65,9 @@ class EffortlessApi:
         authheader={"Authorization": f"Bearer {self.token}"}
 
         if jsonBody == None:
-            resp = self.session.post(url, headers=authheader)
+            resp = self.session.post(url, headers=authheader, verify=self.verify_ssl)
         else:
-            resp = self.session.post(url, json=jsonBody, headers=authheader)
+            resp = self.session.post(url, json=jsonBody, headers=authheader, verify=self.verify_ssl)
 
         if resp.status_code < 200 or resp.status_code > 201:
             print(f"Failed POST {jsonBody} to {url}.")

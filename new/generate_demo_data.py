@@ -9,8 +9,8 @@ from role_mgmt import RoleManager
 from client_mgmt import ClientManager
 from job_mgmt import JobManager
 
-baseurl = "http://localhost:5000/api"
-api = EffortlessApi(baseurl)
+baseurl = "https://localhost:5001/api"
+api = EffortlessApi(baseurl, verify_ssl = True)
 
 #####################
 # Consistent Logins #
