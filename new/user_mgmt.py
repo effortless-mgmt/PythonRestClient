@@ -46,8 +46,7 @@ class UserManager:
             
       
     def get_users_with_role(self, primaryRoleType):
-        print(f"user?primaryRoleType={primaryRoleType.value}")
-        resp, code = self.api.get(f"user?primaryRoleType={primaryRoleType.value}")
+        resp, code = self.api.get(f"user?primaryRole={primaryRoleType.value}")
         return resp, code
         # return resp.json(), code
     # def create_users(self, users):

@@ -103,7 +103,7 @@ class JobManager:
     
     def create_random_appointments(self, count, users = None, workperiods = None):
         if users == None or users == []:
-            users, _ = self.api.get(f"user?primaryRoleType={PrimaryRoleType.SUBSTITUTE.value}")
+            users, _ = self.api.get(f"user?primaryRole={PrimaryRoleType.SUBSTITUTE.value}")
         if workperiods == None or workperiods == []:
             workperiods, _ == self.api.get(f"workperiods")
             workperiods = random.sample(workperiods, random.randint(0, len(workperiods)))
