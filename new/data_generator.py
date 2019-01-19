@@ -23,6 +23,8 @@ class DataGenerator:
             requestedCompany = democompanies[1]
         elif vat == 32939635:
             requestedCompany = democompanies[2]
+        elif vat == 17571559:
+            requestedCompany = democompanies[3]
 
         if ("error" in requestedCompany):
             print("CVR API Error:", requestedCompany["message"])
