@@ -8,23 +8,23 @@ class DataGenerator:
         pass
     
     def get_company(vat, country="dk"):
-        # req = requests.get(f"https://cvrapi.dk/api?vat={vat}&country={country}")
+        req = requests.get(f"https://cvrapi.dk/api?vat={vat}&country={country}")
 
-        # if (req.status_code < 200 and req.status_code > 201):
-        #     print("Dunno what happened")
-        #     print(req.text)
-        #     return None
+        if (req.status_code < 200 and req.status_code > 201):
+            print("Dunno what happened")
+            print(req.text)
+            return None
 
-        # requestedCompany = req.json()
-        from companies import democompanies
-        if vat == 35783482:
-            requestedCompany = democompanies[0]
-        elif vat == 19766241:
-            requestedCompany = democompanies[1]
-        elif vat == 32939635:
-            requestedCompany = democompanies[2]
-        elif vat == 17571559:
-            requestedCompany = democompanies[3]
+        requestedCompany = req.json()
+        # from companies import democompanies
+        # if vat == 35783482:
+        #     requestedCompany = democompanies[0]
+        # elif vat == 19766241:
+        #     requestedCompany = democompanies[1]
+        # elif vat == 32939635:
+        #     requestedCompany = democompanies[2]
+        # elif vat == 17571559:
+        #     requestedCompany = democompanies[3]
 
         if ("error" in requestedCompany):
             print("CVR API Error:", requestedCompany["message"])
@@ -88,7 +88,7 @@ class DataGenerator:
         }
 
     def random_users(count):
-        url = f"https://randomuser.me/api/?inc=name,email,login,phone&nat=dk&results={count}"
+        url = f"https://randomuser.me/api/?inc=name,email,login,phone,location&nat=dk&results={count}"
 
         reqUsers = requests.get(url).json()["results"]
         users = []
@@ -101,7 +101,15 @@ class DataGenerator:
                 "phone": reqUser["phone"],
                 "userName": reqUser["login"]["username"],
                 "password": reqUser["login"]["password"],
-                "primaryRole": random.randint(0, 2)
+                "primaryRole": random.randint(0, 2),
+                "address": {
+                    "street": reqUser["location"]["street"],
+                    "zipCode": reqUser["location"]["postcode"],
+                    "city": reqUser["location"]["city"],
+                    "state": reqUser["location"]["state"],
+                    "country": "Denmark",
+                    "no": random.randint(0, 199)
+                }
             })
         return users
 

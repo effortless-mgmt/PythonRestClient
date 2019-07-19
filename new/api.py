@@ -1,5 +1,6 @@
 from datetime import datetime
 from requests import Session, Request
+import requests
 from token_helper import TokenHelper
 from data_generator import DataGenerator
 
@@ -36,6 +37,9 @@ class EffortlessApi:
     def create_user(self, user):
         url = f"{self.base}/user"
 
+        # profile_pic = requests.get("https://randomuser.me/api/?inc=picture&nat=dk&results=1").json()["results"][0]["picture"]["large"]
+        profile_pic = f"https://api.adorable.io/avatars/285/{user['userName']}.png"
+        user["profilePictureUrl"] = profile_pic
         resp = self.session.post(url, json=user, verify=self.verify_ssl)
 
         if resp.status_code == 500:

@@ -43,6 +43,14 @@ class UserManager:
             c+=1
             print(f"=========  {c}  ========")
             self.create_user_with_roles(user, [random.choice(roles)])
+
+    def create_random_substitute_with_name(self, username):
+        random_user = DataGenerator.random_users(1)[0]
+        random_user["userName"] = username
+        random_user["password"] = "SecurePassword"
+        random_user["primaryRole"] = 2
+        print(random_user)
+        self.create_user(random_user)
             
       
     def get_users_with_role(self, primaryRoleType):

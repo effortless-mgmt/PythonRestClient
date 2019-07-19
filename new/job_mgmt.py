@@ -116,6 +116,12 @@ class JobManager:
                     print("      ", end="")
                     self.create_random_appointment(workperiod['id'], user['id'])
     
+    def create_random_available_appointments(self, count):
+        workperiods = self.api.get(f"workperiod")
+        wp = random.choice(workperiods)
+        for _ in range(count):
+            self.create_random_appointment(wp["id"], None)
+    
     def random_date_past_long(self):
         start = (date.today() + relativedelta(months=-24)).toordinal()
         end = date.today().toordinal()
